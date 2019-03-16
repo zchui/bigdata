@@ -1,9 +1,24 @@
-# 创建表
+########################################## hbase创建表 ##########################################
 echo "create 'table', {NAME => 'cf1', VERSIONS => '3', COMPRESSION => 'SNAPPY'}, {NAME => 'cf2', VERSIONS => '3', COMPRESSION => 'SNAPPY'}, SPLITS => ['0001','0034','0067','0100','0133','0166','0199','0232','0265','0298','0331','0364','0397','0430','0463','0496','0529','0562','0595','0628','0661','0694','0727','0760','0793','0826','0859','0892','0925','0958','0991']" | ./bin/hbase shell -n
 
-# hbase按月迁移region
+########################################## hbase全量迁移 ##########################################
+1.备份
+$HADOOP_HOME/bin/hadoop fs -get /hbase/data/default/HUMAN_INFO /mnt/disk1
+2.还原
+$HBASE_HOME/bin/hbase shell drop-table
+$HADOOP_HOME/bin/hadoop fs -rmr /hbase/data/default/table
+  #tar -zxvf /mnt/disk1/table.tar.gz  -C  /mnt/disk1/
+  #$HADOOP_HOME/bin/hadoop fs -put /mnt/disk1/mnt/disk1/table /hbase/data/default
+$HADOOP_HOME/bin/hadoop fs -put /mnt/disk1/table /hbase/data/default
+sleep 100s
+$HBASE_HOME/bin/hbase hbck -fixMeta
+$HBASE_HOME/bin/hbase hbck -fixAssignments
+
+
+########################################## hbase按月迁移region ##########################################
 1.确认old 1月份region uuid
 echo "scan 'hbase:meta', {COLUMNS => 'info:regioninfo'}"| /usr/lib/*/SERVICE-HBASE-*/bin/hbase shell  2> /dev/null |grep "table"|awk '{print $1}'|grep "201901"|awk -F '.' '{print $2}' > table_201901_regionsuuid_src.log
+备份数据使用工具
 
 2.确认new 1月份region uuid
 echo "scan 'hbase:meta', {COLUMNS => 'info:regioninfo'}"| /usr/lib/*/SERVICE-HBASE-*/bin/hbase shell  2> /dev/null |grep "table"|awk '{print $1}'|grep "201901"|awk -F '.' '{print $2}' > table_201901_regionsuuid_del.log
