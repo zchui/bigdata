@@ -1,0 +1,10 @@
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>node132:8032</value>
+    </property>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://node130:8020</value>
+    </property>
+</configuration>
